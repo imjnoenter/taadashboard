@@ -1556,8 +1556,12 @@ function normalizeHeader(s) {
 async function fetchSheetValues(sheetName) {
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}`;
   const res = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-  if (res.status === 401) { accessToken = null; throw new Error('401'); }
-  if (!res.ok) throw new Error(res.status);
+  if (res.status === 401) { accessToken = null; throw new Error('401 — token expired, re-login'); }
+  if (!res.ok) {
+    let msg = `HTTP ${res.status}`;
+    try { const j = await res.json(); msg += ': ' + (j?.error?.message || res.statusText); } catch {}
+    throw new Error(msg);
+  }
   const data = await res.json();
   return (data.values || []).map(row => row.map(v => v !== undefined ? String(v) : ''));
 }
@@ -1985,13 +1989,19 @@ function restoreFuel() {
 // ── A320 Defect Drawer ──
 let a320Rows = null, a320ColIdx = {}, a320Headers = [];
 
+let a320LoadError = '';
+
 function loadA320(callback) {
   if (a320Rows !== null) { callback(); return; }
   ensureToken(async () => {
     try {
-      const rows = await fetchSheetValues('A320');
+      const rows = await fetchSheetValues("'A320'!A:Z");
       parseA320FromRows(rows);
-    } catch { a320Rows = null; }
+      if (!a320Rows) a320LoadError = 'Header row (A/C, DATE) not found in sheet';
+    } catch(e) {
+      a320Rows = null;
+      a320LoadError = e.message || String(e);
+    }
     callback();
   });
 }
@@ -2053,8 +2063,8 @@ function renderDefects(reg) {
   const content = document.getElementById('drawerContent');
   const acIdx   = a320ColIdx['A/C'] ?? a320ColIdx['A C'];
 
-  if (acIdx === undefined || !a320Rows.length) {
-    content.innerHTML = `<div class="drawer-empty">No data available</div>`;
+  if (!a320Rows || acIdx === undefined || !a320Rows.length) {
+    content.innerHTML = `<div class="drawer-empty">No data available${a320LoadError ? '<br><span style="font-size:10px;opacity:0.6">' + a320LoadError + '</span>' : ''}</div>`;
     return;
   }
 
