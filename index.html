@@ -2187,6 +2187,8 @@ function handleCredentialResponse(response) {
 function handleTokenResponse(resp) {
   if (resp.error) return;
   accessToken = resp.access_token;
+  const refreshIn = ((resp.expires_in || 3600) - 300) * 1000;
+  setTimeout(() => tokenClient.requestAccessToken({ prompt: '' }), refreshIn);
   if (pendingAfterToken) { const fn = pendingAfterToken; pendingAfterToken = null; fn(); }
 }
 
