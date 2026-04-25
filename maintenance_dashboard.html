@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>DASHBOARD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Aviation/industrial palette — deep navy with amber accent */
+    --bg: #05080f;
+    --bg-gradient: radial-gradient(ellipse at top, #0a1628 0%, #05080f 60%);
+    --surface: #0e1a2e;
+    --surface-2: #142540;
+    --surface-raised: #182d4f;
+    --border: #1f3358;
+    --border-bright: #2d4875;
+
+    --ink: #ffffff;
+    --ink-2: #cfdcf0;
+    --ink-3: #8ba2c4;
+    --ink-mute: #5a708f;
+
+    /* Signature amber accent — evokes cockpit instruments */
+    --amber: #fbbf24;
+    --amber-glow: #fcd34d;
+    --amber-dim: #92400e;
+
+    --cyan: #22d3ee;
+    --cyan-dim: #0e7490;
+
+    --success: #34d399;
+    --success-dim: #064e3b;
+
+    --warn: #fb923c;
+    --warn-dim: #7c2d12;
+
+    --danger: #f87171;
+    --danger-dim: #7f1d1d;
+
+    --purple: #a78bfa;
+    --purple-dim: #4c1d95;
+
+    /* Flight type accents */
+    --first: #38bdf8;
+    --night: #a78bfa;
+    --transit: #34d399;
+  }
+
+  html, body { overflow-x: hidden; }
+
+  body {
+    font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    background-image: var(--bg-gradient);
+    color: var(--ink);
+    min-height: 100vh;
+    padding-bottom: 60px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    position: relative;
+  }
+
+  /* Subtle grid texture for industrial feel */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Mono text utility */
+  .mono { font-family: 'JetBrains Mono', 'Courier New', monospace; }
+
+  /* ────────── HEADER ────────── */
+  .header {
+    background: linear-gradient(to bottom, var(--surface), var(--surface) 90%, transparent);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 20px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--amber);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 30% 30%, rgba(251, 191, 36, 0.2), transparent);
+    color: var(--amber);
+    font-size: 18px;
+  }
+
+  .logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+
+  .logo-primary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: var(--ink);
+  }
+
+  .logo-secondary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    color: var(--amber);
+    margin-top: 2px;
+  }
+
+  .header-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .clock {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    color: var(--amber);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .date-line {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+  }
+
+  /* ────────── SEARCH ────────── */
+  .search-wrap {
+    padding: 18px 20px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .search-row {
+    display: flex;
+    gap: 10px;
+    position: relative;
+  }
+
+  .input-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  .input-wrap::before {
+    content: '';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: var(--amber);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--amber);
+    z-index: 1;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 14px 16px 14px 34px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    border-radius: 12px;
+    outline: none;
+    -webkit-appearance: none;
+    transition: all 0.2s;
+  }
+
+  input:focus {
+    border-color: var(--amber);
+    background: var(--surface-2);
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+  }
+
+  input::placeholder {
+    color: var(--ink-mute);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .btn {
+    background: var(--amber);
+    color: #0a0f1c;
+    border: none;
+    padding: 14px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    border-radius: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 12px rgba(251, 191, 36, 0.25);
+    transition: all 0.15s;
+  }
+
+  .btn:active {
+    transform: scale(0.96);
+    box-shadow: 0 1px 6px rgba(251, 191, 36, 0.3);
+  }
+
+  /* ────────── STATUS ────────── */
+  .status-bar {
+    padding: 10px 20px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 1;
+  }
+
+  .status-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    animation: pulse 2s infinite;
+  }
+
+  .dot.loading { background: var(--amber); box-shadow: 0 0 8px var(--amber); }
+  .dot.error { background: var(--danger); box-shadow: 0 0 8px var(--danger); animation: none; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.85); }
+  }
+
+  .refresh-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--ink-2);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 5px 11px;
+    border-radius: 5px;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.15s;
+  }
+
+  .refresh-btn:active {
+    background: var(--surface-2);
+    border-color: var(--amber);
+    color: var(--amber);
+  }
+
+  /* ────────── RESULTS ────────── */
+  .results {
+    padding: 18px 16px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .count-bar {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .count-bar::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, var(--border), transparent);
+  }
+
+  .count-num {
+    color: var(--amber);
+    font-weight: 700;
+  }
+
+  /* ────────── SECTION DIVIDERS ────────── */
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin: 20px 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label.current { color: var(--amber); }
+  .section-label.earlier { color: var(--ink-mute); }
+
+  .section-label .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, currentColor, transparent);
+    opacity: 0.4;
+  }
+
+  .section-label .pill {
+    font-size: 9px;
+    padding: 2px 6px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    opacity: 0.8;
+  }
+
+  /* ────────── CARD ────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0;
+    margin-bottom: 14px;
+    animation: slideIn 0.22s cubic-bezier(0.2, 0.8, 0.4, 1);
+    overflow: hidden;
+    position: relative;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Flight type top stripe */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--border);
+  }
+
+  .card.type-first::before        { background: linear-gradient(90deg, var(--first), transparent); }
+  .card.type-night::before        { background: linear-gradient(90deg, var(--night), transparent); }
+  .card.type-transit::before      { background: linear-gradient(90deg, var(--transit), transparent); }
+  .card.type-longtransit::before  { background: linear-gradient(90deg, var(--amber), transparent); }
+
+  /* Current/Now card — amber glow */
+  .card.is-current {
+    border-color: var(--amber);
+    box-shadow:
+      0 0 0 1px var(--amber),
+      0 4px 24px rgba(251, 191, 36, 0.15),
+      inset 0 1px 0 rgba(251, 191, 36, 0.1);
+  }
+
+  .card.is-current::before {
+    background: linear-gradient(90deg, var(--amber-glow), var(--amber), transparent);
+    height: 4px;
+  }
+
+  /* ────────── CARD HEADER ────────── */
+  .card-header {
+    padding: 16px 16px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    position: relative;
+  }
+
+  .reg-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .reg-line {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .reg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.05em;
+    line-height: 1;
+  }
+
+  .reg-tick {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--amber);
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    opacity: 0.8;
+  }
+
+  .type-tags {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 3px 7px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid;
+  }
+
+  .tag-now {
+    background: var(--amber);
+    color: #0a0f1c;
+    border-color: var(--amber);
+    animation: pulse-tag 2s infinite;
+  }
+
+  @keyframes pulse-tag {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.6); }
+    50% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+  }
+
+  .tag-first   { color: var(--first);   border-color: var(--first);   background: rgba(56, 189, 248, 0.08); }
+  .tag-night   { color: var(--night);   border-color: var(--night);   background: rgba(167, 139, 250, 0.08); }
+  .tag-transit      { color: var(--transit); border-color: var(--transit); background: rgba(52, 211, 153, 0.08); }
+  .tag-longtransit  { color: var(--amber);   border-color: var(--amber);   background: rgba(251, 191, 36, 0.08); }
+
+  /* Team badges on right */
+  .team-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-end;
+    flex-shrink: 0;
+  }
+
+  .person {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.04em;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .person .role {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 1px 4px;
+    border-radius: 2px;
+    color: #000;
+  }
+
+  .person.mech .role { background: var(--cyan); }
+  .person.lae .role  { background: var(--purple); }
+  .person.mech       { color: var(--cyan); border-color: var(--cyan-dim); }
+  .person.lae        { color: var(--purple); border-color: var(--purple-dim); }
+
+  .lae-tag {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: var(--purple);
+    opacity: 0.7;
+  }
+
+  /* ────────── BAY BAR ────────── */
+  .bay-bar {
+    margin: 0 16px 14px;
+    padding: 10px 14px;
+    background: linear-gradient(90deg, var(--success-dim), transparent);
+    border-left: 3px solid var(--success);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bay-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--success);
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  .bay-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--success);
+    letter-spacing: 0.05em;
+  }
+
+  .bay-arrow {
+    color: var(--amber);
+    font-size: 18px;
+    font-weight: 700;
+  }
+
+  .bay-value.tow-now {
+    color: var(--warn);
+    animation: pulse-tag 2s infinite;
+  }
+
+  /* ────────── SECTIONS ────────── */
+  .section {
+    padding: 14px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title.arrival   { color: var(--cyan); }
+  .section-title.departure { color: var(--warn); }
+  .section-title.dim       { color: var(--ink-mute); }
+
+  .section-title .dir-arrow {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .section-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px 18px;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 48px;
+  }
+
+  .field-lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+  }
+
+  .field-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.03em;
+    line-height: 1.1;
+  }
+
+  .field-val.time { color: var(--amber); font-weight: 700; }
+  .field-val.eta  { color: var(--danger); font-weight: 700; }
+  .field-val.dim  { color: var(--ink-mute); font-weight: 400; font-style: italic; font-size: 13px; }
+
+  /* ────────── HIGHLIGHTS ────────── */
+  .highlights {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .chip-etops {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(34, 211, 238, 0.1);
+    border: 1px solid var(--cyan);
+    color: var(--cyan);
+    padding: 6px 11px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .chip-fgs {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(251, 191, 36, 0.15));
+    border: 1px solid var(--warn);
+    color: var(--warn);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 12px rgba(251, 146, 60, 0.2);
+  }
+
+  .chip-fgs-label {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 5px;
+    background: var(--warn);
+    color: #000;
+    border-radius: 3px;
+    letter-spacing: 0.15em;
+  }
+
+  .bay-tow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--amber);
+    letter-spacing: 0.03em;
+    border: 1px solid var(--amber);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+
+  /* ────────── TOW ────────── */
+  .tow-bar {
+    margin: 0 16px 12px;
+    padding: 8px 12px;
+    background: rgba(52, 211, 153, 0.08);
+    border: 1px dashed var(--success);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--success);
+    letter-spacing: 0.08em;
+  }
+
+  .tow-label {
+    font-size: 9px;
+    padding: 2px 5px;
+    background: var(--success);
+    color: #000;
+    border-radius: 3px;
+    letter-spacing: 0.2em;
+    font-weight: 700;
+  }
+
+  /* ────────── REMARK / DEFECT ────────── */
+  .remark, .defect {
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.55;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .remark {
+    background: rgba(251, 146, 60, 0.06);
+    color: var(--warn);
+    border-left: 3px solid var(--warn);
+  }
+
+  .defect {
+    background: rgba(248, 113, 113, 0.06);
+    color: var(--danger);
+    border-left: 3px solid var(--danger);
+  }
+
+  .remark-icon, .defect-icon {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .remark-icon { background: var(--warn); color: #000; }
+  .defect-icon { background: var(--danger); color: #000; }
+
+  /* ────────── EMPTY STATE ────────── */
+  .empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--ink-mute);
+  }
+
+  .empty-mark {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    border: 1.5px solid var(--border-bright);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: var(--ink-3);
+  }
+
+  .empty-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    line-height: 1.8;
+  }
+
+  .empty-text .emph {
+    color: var(--amber);
+    font-weight: 700;
+  }
+
+  /* Keep horizontal scroll off */
+  @media (max-width: 400px) {
+    .reg { font-size: 24px; }
+    .field-val { font-size: 15px; }
+  }
+
+  /* ────────── TAB BAR ────────── */
+  .tab-bar {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 13px 8px;
+    background: transparent;
+    border: none;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    color: var(--ink-mute);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .tab-btn.active {
+    color: var(--amber);
+    border-bottom-color: var(--amber);
+  }
+
+  /* ────────── FUEL CALCULATOR ────────── */
+  .fuel-wrap {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .fuel-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .fuel-section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid var(--border);
+    text-transform: uppercase;
+  }
+
+  .fuel-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .fuel-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+    text-transform: uppercase;
+    padding: 8px 4px 4px;
+    text-align: center;
+  }
+
+  .fuel-table td {
+    padding: 5px 4px;
+    text-align: center;
+  }
+
+  .fuel-table .row-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: 0.08em;
+    text-align: left;
+    padding-left: 12px;
+    white-space: nowrap;
+  }
+
+  input[type="number"].fuel-input {
+    width: 100%;
+    min-width: 0;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--ink);
+    padding: 9px 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+    text-align: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  input[type="number"].fuel-input:focus {
+    border-color: var(--amber);
+    background: var(--surface-raised);
+    box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.12);
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; appearance: none; margin: 0; }
+  input[type="number"] { -moz-appearance: textfield; }
+
+  .fuel-result {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.03em;
+    display: block;
+    text-align: center;
+    padding: 9px 4px;
+  }
+
+  .fuel-result.time { color: var(--amber); }
+
+  .fuel-summary { padding: 4px 14px 10px; }
+
+  .sum-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sum-row:last-child { border-bottom: none; }
+
+  .sum-lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-mute);
+    letter-spacing: 0.12em;
+    width: 56px;
+    flex-shrink: 0;
+    text-transform: uppercase;
+  }
+
+  .sum-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.03em;
+    min-width: 64px;
+  }
+
+  .sum-unit {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+  }
+
+  .sum-extra {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.04em;
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .sum-row.sum-calc .sum-val { color: var(--cyan); }
+  .sum-val.diff-ok     { color: var(--success); }
+  .sum-val.diff-warn   { color: var(--warn); }
+  .sum-val.diff-danger { color: var(--danger); }
+
+  /* ── Fuel NOW card ── */
+  .fuel-now-card {
+    background: var(--surface);
+    border: 1px solid var(--amber);
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-shadow: 0 0 0 1px var(--amber), 0 4px 20px rgba(251,191,36,0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .fuel-now-card.hidden { display: none; }
+
+  .fuel-now-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+
+  .fuel-now-reg {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+  }
+
+  .fuel-now-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .fuel-now-row {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-3);
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .fuel-now-row .hl { color: var(--amber); }
+  .fuel-now-row .hl-cyan { color: var(--cyan); }
+
+  .fuel-now-empty {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+    text-align: center;
+    padding: 14px;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+  }
+
+  .fuel-actions { display: flex; gap: 10px; }
+  .fuel-btn-taaplus { flex: 1; }
+  .fuel-btn-reset {
+    background: var(--surface-raised);
+    color: var(--ink-2);
+    border: 1px solid var(--border);
+    box-shadow: none;
+  }
+
+  /* ────────── DEFECT DRAWER ────────── */
+  #drawerBackdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 50;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  #drawerBackdrop.active { opacity: 1; pointer-events: all; touch-action: none; }
+
+  #defectDrawer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 82vh;
+    background: var(--surface);
+    border-top: 1px solid var(--border-bright);
+    border-radius: 18px 18px 0 0;
+    z-index: 51;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.4, 1);
+  }
+
+  #defectDrawer.active { transform: translateY(0); }
+
+  .drawer-handle {
+    width: 36px; height: 4px;
+    background: var(--border-bright);
+    border-radius: 2px;
+    margin: 10px auto 0;
+    flex-shrink: 0;
+  }
+
+  .drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px 12px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .drawer-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--ink);
+  }
+
+  .drawer-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--ink-mute);
+    margin-left: 8px;
+    letter-spacing: 0.1em;
+  }
+
+  .drawer-close {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    color: var(--ink-2);
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    flex-shrink: 0;
+  }
+
+  .drawer-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 16px 30px;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
+  .drawer-loading, .drawer-empty {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+    text-align: center;
+    padding: 60px 20px;
+    text-transform: uppercase;
+    line-height: 1.8;
+  }
+
+  .defect-row {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    animation: slideIn 0.2s ease;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .defect-row.mel-active {
+    border-left: 3px solid var(--danger);
+    background: rgba(248,113,113,0.05);
+  }
+
+  .defect-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    width: 100%;
+  }
+
+  .defect-preview-mel {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    width: 100%;
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(248,113,113,0.2);
+  }
+
+  .defect-extra {
+    display: none;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    width: 100%;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .defect-row.expanded .defect-extra { display: flex; }
+
+  .defect-hint {
+    width: 100%;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-mute);
+    text-align: center;
+    margin-top: 10px;
+    letter-spacing: 0.15em;
+  }
+
+  .defect-hint::after { content: '▼  TAP FOR MORE'; }
+  .defect-row.expanded .defect-hint::after { content: '▲  LESS'; }
+
+  .defect-field {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 70px;
+  }
+
+  .defect-field.full-width { flex: 1 1 100%; }
+
+  .defect-lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--ink-mute);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .defect-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-2);
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
+  .defect-field.mel-hl .defect-lbl { color: var(--danger); }
+
+  .defect-field.mel-hl .defect-val {
+    color: var(--danger);
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  .defect-field.ntc-hl .defect-lbl { color: var(--amber); }
+  .defect-field.ntc-hl .defect-val { color: var(--amber); font-size: 15px; font-weight: 700; }
+
+  .reg-link { cursor: pointer; }
+  .reg-link:active { opacity: 0.65; }
+
+  /* ────────── LOGIN OVERLAY ────────── */
+  #loginOverlay {
+    position: fixed; inset: 0;
+    background: var(--bg); background-image: var(--bg-gradient);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #loginOverlay.hidden { display: none; }
+  .login-card {
+    display: flex; flex-direction: column; align-items: center; gap: 28px;
+    padding: 44px 32px;
+    background: var(--surface);
+    border: 1px solid var(--border-bright); border-radius: 20px;
+    width: 88%; max-width: 340px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+  }
+  .login-logo { display: flex; align-items: center; gap: 14px; }
+  .login-divider { width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--border-bright), transparent); }
+  .login-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); letter-spacing: 0.2em; text-transform: uppercase; text-align: center; margin-top: -14px; }
+  .login-error { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--danger); letter-spacing: 0.06em; text-align: center; line-height: 1.6; display: none; }
+  .login-error.show { display: block; }
+  /* ── User info in header ── */
+  .user-info { display: none; align-items: center; gap: 8px; }
+  .user-avatar { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--amber); object-fit: cover; flex-shrink: 0; }
+  .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--ink-mute); font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.15em; padding: 4px 8px; border-radius: 5px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .logout-btn:active { color: var(--danger); border-color: var(--danger); }
+
+</style>
+</head>
+<body>
+
+<div id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="logo-mark">✈</div>
+      <div class="logo-text">
+        <div class="logo-primary">DASHBOARD</div>
+        <div class="logo-secondary">TAA BAYWATCH</div>
+      </div>
+    </div>
+    <div class="login-divider"></div>
+    <div class="login-subtitle">Sign in to continue</div>
+    <div id="googleSignInBtn"></div>
+    <div id="loginError" class="login-error"></div>
+  </div>
+</div>
+
+<header class="header">
+  <div class="logo-area">
+    <div class="logo-mark">✈</div>
+    <div class="logo-text">
+      <div class="logo-primary">DASHBOARD</div>
+      <div class="logo-secondary">TAA BAYWATCH</div>
+    </div>
+  </div>
+  <div class="header-meta">
+    <div class="clock" id="clock">--:--</div>
+    <div class="date-line" id="date">--- --- --</div>
+    <div class="user-info" id="userInfo">
+      <img class="user-avatar" id="userAvatar" src="" alt="">
+      <button class="logout-btn" onclick="logout()">OUT</button>
+    </div>
+  </div>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" id="tab-btn-day" onclick="switchTab('day')">DAY</button>
+  <button class="tab-btn" id="tab-btn-fuel" onclick="switchTab('fuel')">FUEL</button>
+</div>
+
+<div id="tab-day">
+
+<div class="search-wrap">
+  <div class="search-row">
+    <div class="input-wrap">
+      <input type="text" id="nameInput"
+        placeholder="NAME / REG"
+        autocomplete="off" autocorrect="off"
+        autocapitalize="characters" spellcheck="false" />
+    </div>
+  </div>
+</div>
+
+<div class="status-bar">
+  <div class="status-left">
+    <span class="dot" id="dot"></span>
+    <span id="status">LOADING DATA</span>
+  </div>
+  <button class="refresh-btn" onclick="refresh()">↻ SYNC</button>
+</div>
+
+<div class="results">
+  <div class="count-bar" id="count" style="display:none"></div>
+  <div id="cards"></div>
+</div>
+
+</div><!-- #tab-day -->
+
+<div id="tab-fuel" style="display:none">
+  <div class="fuel-wrap">
+
+    <div id="fuelNowWrap"></div>
+
+    <div class="fuel-section">
+      <div class="fuel-section-title">Tank Readings (KG)</div>
+      <table class="fuel-table">
+        <thead><tr><th></th><th>LEFT</th><th>CTR</th><th>RIGHT</th><th>TOTAL</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="row-label">Arrival</td>
+            <td><input type="number" inputmode="numeric" id="fArrL" class="fuel-input" placeholder="—" oninput="calcFuel()"></td>
+            <td><input type="number" inputmode="numeric" id="fArrC" class="fuel-input" placeholder="—" oninput="calcFuel()"></td>
+            <td><input type="number" inputmode="numeric" id="fArrR" class="fuel-input" placeholder="—" oninput="calcFuel()"></td>
+            <td><span id="fArrTotal" class="fuel-result">—</span></td>
+          </tr>
+          <tr>
+            <td class="row-label">Depart</td>
+            <td><input type="number" inputmode="numeric" id="fDepL" class="fuel-input" placeholder="—" oninput="calcFuel()"></td>
+            <td><input type="number" inputmode="numeric" id="fDepC" class="fuel-input" placeholder="—" oninput="calcFuel()"></td>
+            <td><input type="number" inputmode="numeric" id="fDepR" class="fuel-input" placeholder="—" oninput="calcFuel()"></td>
+            <td><span id="fDepTotal" class="fuel-result">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="fuel-section">
+      <div class="fuel-section-title">Refuel (Actual)</div>
+      <table class="fuel-table">
+        <thead><tr><th>LITERS</th><th>SG</th><th>KG</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><input type="number" inputmode="numeric" id="fLts" class="fuel-input" placeholder="—" oninput="calcFuel()"></td>
+            <td><input type="number" inputmode="decimal" id="fSG" class="fuel-input" placeholder="0.777" step="0.001" oninput="calcFuel()"></td>
+            <td><span id="fRefuelKg" class="fuel-result">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="fuel-section">
+      <div class="fuel-section-title">Plan</div>
+      <table class="fuel-table">
+        <thead><tr><th>PLAN (KG)</th><th>UPLIFT LTS</th><th>TIME</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><input type="number" inputmode="numeric" id="fPlan" class="fuel-input" placeholder="—" oninput="calcFuel()"></td>
+            <td><span id="fUpliftLts" class="fuel-result">—</span></td>
+            <td><span id="fTime" class="fuel-result time">—</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="fuel-section">
+      <div class="fuel-section-title">Summary</div>
+      <div class="fuel-summary">
+        <div class="sum-row">
+          <span class="sum-lbl">Arrival</span><span id="sArrival" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra">700 Lts/min</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Refuel</span><span id="sRefuel" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra">Uplift <span id="sUpliftLts2">—</span> Lts</span>
+        </div>
+        <div class="sum-row sum-calc">
+          <span class="sum-lbl">CALC</span><span id="sCalc" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra"><span id="sKgPerMin">—</span> Kg/min</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Depart</span><span id="sDepart" class="sum-val">—</span><span class="sum-unit">KG</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Diff</span><span id="sDiff" class="sum-val">—</span><span class="sum-unit">KG</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fuel-actions">
+      <button class="btn fuel-btn-taaplus" onclick="window.location.href='https://taaplus.com/'">TAAPLUS ↗</button>
+      <button class="btn fuel-btn-reset" onclick="resetFuel()">RESET</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const SHEET_ID   = '1N21gf1NVkwVxBVtUs_PpDLu1P12oV8Jt4V_NVNSF6CY';
+const CLIENT_ID  = '255790294756-knguo4k0cv33ol322os7cq3aulm62rre.apps.googleusercontent.com';
+const ALLOWED    = ['saranyuparneja@airasia.com', 'saranyu.parneja@gmail.com'];
+const SESSION_MS = 2 * 24 * 60 * 60 * 1000;
+const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets.readonly';
+
+let accessToken = null, tokenClient = null, pendingAfterToken = null;
+
+const HEADER_MAP = {
+  REG:     ['REG'],
+  FLT_ARR: ['ARR/FLT', 'ARR FLT', 'ARRIVAL FLT', 'FLT/ARR'],
+  ARR:     ['ARR'],
+  STA:     ['STA'],
+  ETA:     ['ETA'],
+  FLT_DEP: ['DEP/FLT', 'DEP FLT', 'DEPARTURE FLT', 'FLT/DEP'],
+  DEP:     ['DEP'],
+  STD:     ['STD'],
+  TRD:     ['TRD'],
+  BAY:     ['BAY'],
+  MECH:    ['MECH/TECH', 'MECH / TECH', 'MECH TECH', 'TECH'],
+  LAE1:    ['LAE1', 'LAE 1'],
+  LAE2:    ['LAE2', 'LAE 2'],
+  ETOPS:   ['ETOPS', 'NEO', 'ETOPS/NEO', 'ETOPS NEO'],
+  FGS:     ['FGS', 'ACU', 'FGS/ACU', 'FGS ACU'],
+  TOW:     ['TOW'],
+  REMARK:  ['REMARK', 'HAND OVER', 'HANDOVER'],
+  DEFECT:  ['DEFECT'],
+};
+
+let allRows = [], colIdx = {};
+
+window.onload = () => {
+  startClock();
+  initAuth();
+  const inp = document.getElementById('nameInput');
+  const saved = localStorage.getItem('taa_search');
+  if (saved) inp.value = saved;
+  inp.addEventListener('input', () => {
+    inp.value = inp.value.toUpperCase();
+    localStorage.setItem('taa_search', inp.value);
+    search();
+  });
+  const savedTab = localStorage.getItem('taa_active_tab') || 'day';
+  if (savedTab === 'fuel') switchTab('fuel');
+  restoreFuel();
+};
+
+function startClock() {
+  const tick = () => {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+    const days   = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const d = `${days[now.getDay()]} , ${String(now.getDate()).padStart(2,'0')} ${months[now.getMonth()]} ${String(now.getFullYear()).slice(2)}`;
+    document.getElementById('date').textContent = d;
+  };
+  tick();
+  setInterval(tick, 30000);
+}
+
+function loadData() { ensureToken(_loadData); }
+
+async function _loadData() {
+  setStatus('LOADING DATA', 'loading');
+  try {
+    const rows = await fetchSheetValues('DAY');
+    parseFromRows(rows);
+    setStatus(`${allRows.length} FLIGHTS · LIVE`, 'ok');
+    search();
+  } catch(e) {
+    setStatus('SYNC ERROR', 'error');
+  }
+}
+
+function refresh() {
+  allRows = []; colIdx = {}; a320Rows = null;
+  document.getElementById('cards').innerHTML = '';
+  document.getElementById('count').style.display = 'none';
+  loadData();
+}
+
+function normalizeHeader(s) {
+  return (s || '').toUpperCase().replace(/[\s\/\-_\.]+/g, ' ').trim();
+}
+
+async function fetchSheetValues(sheetName) {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(sheetName)}`;
+  const res = await fetch(url, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+  if (res.status === 401) { accessToken = null; throw new Error('401'); }
+  if (!res.ok) throw new Error(res.status);
+  const data = await res.json();
+  return (data.values || []).map(row => row.map(v => v !== undefined ? String(v) : ''));
+}
+
+function parseFromRows(rows) {
+  let headerRow = -1, headerCols = [];
+  for (let i = 0; i < Math.min(20, rows.length); i++) {
+    const cols = rows[i].map(normalizeHeader);
+    if (cols.some(c => c === 'REG') && cols.some(c => c === 'STA') && cols.some(c => c === 'ETA')) {
+      headerRow = i; headerCols = cols; break;
+    }
+  }
+
+  colIdx = {};
+  for (const key in HEADER_MAP) {
+    const candidates = HEADER_MAP[key].map(normalizeHeader);
+    for (let i = 0; i < headerCols.length; i++) {
+      const h = headerCols[i];
+      if (candidates.some(c => h === c || h.includes(c))) {
+        if (colIdx[key] === undefined) colIdx[key] = i;
+      }
+    }
+  }
+
+  const fallback = { REG:0, FLT_ARR:1, ARR:1, STA:2, FLT_DEP:5, DEP:6, STD:7, TRD:8, BAY:9, MECH:11, LAE1:12, LAE2:13, REMARK:19, DEFECT:18 };
+  for (const k in fallback) if (colIdx[k] === undefined) colIdx[k] = fallback[k];
+
+  if (colIdx.TOW !== undefined) {
+    const end = colIdx.DEFECT !== undefined ? colIdx.DEFECT : headerCols.length;
+    for (let i = colIdx.TOW + 1; i < end; i++) {
+      if (headerCols[i] === '') { colIdx._remarkBlank = i; break; }
+    }
+  }
+
+  const dataStart = headerRow >= 0 ? headerRow + 1 : 0;
+  allRows = rows.slice(dataStart)
+    .map(cols => cols.map(v => (v || '').trim()))
+    .filter(cols => {
+      const reg = cols[colIdx.REG] || '';
+      return reg.length >= 2 && reg.length <= 8 && /[A-Z]/.test(reg);
+    });
+}
+
+function cv(row, key) {
+  if (key === 'REMARK') {
+    const v = (row[colIdx.REMARK] || '').trim();
+    if (v) return v;
+    if (colIdx._remarkBlank !== undefined) return (row[colIdx._remarkBlank] || '').trim();
+    return '';
+  }
+  return (row[colIdx[key]] || '').trim();
+}
+
+function getFlightType(row) {
+  const arrFlt = cv(row, 'FLT_ARR');
+  const arr    = cv(row, 'ARR');
+  const depFlt = cv(row, 'FLT_DEP');
+  const dep    = cv(row, 'DEP');
+  const all = (arrFlt + ' ' + depFlt + ' ' + dep).toUpperCase();
+  if (all.includes('N/S')) return 'night';
+  if (arrFlt.toUpperCase().includes('LT') || arr.toUpperCase().includes('LT')) return 'longtransit';
+  const hasArr = arrFlt && arrFlt !== '-';
+  const hasDep = (depFlt && depFlt !== '-') || (dep && dep !== '-');
+  if (hasArr && hasDep) return 'transit';
+  if (!hasArr && hasDep) return 'first';
+  return 'other';
+}
+
+function timeToMins(t) {
+  if (!t) return -1;
+  const m = String(t).match(/(\d{1,2})[:\.](\d{2})/);
+  if (!m) return -1;
+  return parseInt(m[1],10) * 60 + parseInt(m[2],10);
+}
+
+function getSortTime(row) {
+  const sta = timeToMins(cv(row, 'STA'));
+  if (sta >= 0) return sta;
+  const std = timeToMins(cv(row, 'STD'));
+  if (std >= 0) return std - 60;
+  return -1;
+}
+
+function getUpcomingTime(row) {
+  const std = timeToMins(cv(row, 'STD'));
+  if (std >= 0) return std;
+  // No STD — use ETA+30 (or STA+30) as the work-end cutoff
+  const eta = timeToMins(cv(row, 'ETA'));
+  const sta = timeToMins(cv(row, 'STA'));
+  const base = eta >= 0 ? eta : sta;
+  if (base >= 0) return base + 30;
+  return -1;
+}
+
+function search() {
+  const name = document.getElementById('nameInput').value.trim().toUpperCase();
+  if (!allRows.length) { loadData(); return; }
+
+  const matches = name
+    ? allRows.filter(row => ['REG', 'MECH', 'LAE1', 'LAE2'].some(k => cv(row, k).toUpperCase().includes(name)))
+    : [...allRows];
+
+  if (!name) {
+    renderResults(matches, name, 0);
+    return;
+  }
+
+  const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
+  const upcoming = [], past = [];
+  matches.forEach(row => {
+    const t = getUpcomingTime(row);
+    if (t < 0 || t >= nowMins) upcoming.push(row); else past.push(row);
+  });
+
+  renderResults([...upcoming, ...past], name, upcoming.length);
+}
+
+function renderResults(matches, name, upcomingCount) {
+  const cardsEl = document.getElementById('cards');
+  const countEl = document.getElementById('count');
+  cardsEl.innerHTML = '';
+
+  if (!matches.length) {
+    countEl.style.display = 'none';
+    cardsEl.innerHTML = `
+      <div class="empty">
+        <div class="empty-mark">⊘</div>
+        <div class="empty-text">No assignments<br>for <span class="emph">${name}</span></div>
+      </div>`;
+    return;
+  }
+
+  countEl.style.display = 'flex';
+  countEl.innerHTML = `<span class="count-num">${matches.length}</span> FLIGHT${matches.length !== 1 ? 'S' : ''}${name ? ' · ' + name : ''}`;
+
+  let html = '';
+  const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
+  matches.forEach((row, idx) => {
+    const type = getFlightType(row);
+    let isCurrent = !!name && idx === 0 && upcomingCount > 0;
+    if (isCurrent && type === 'first') {
+      const std = timeToMins(cv(row, 'STD'));
+      isCurrent = std >= 0 && nowMins >= std - 60;
+    }
+    const isPastHeader = idx === upcomingCount && upcomingCount > 0 && upcomingCount < matches.length;
+    const isPastFirst = upcomingCount === 0 && idx === 0;
+
+    if (isCurrent) html += `<div class="section-label current"><span class="pill">NOW</span> Current & Upcoming <span class="line"></span></div>`;
+    if (name && (isPastHeader || isPastFirst)) html += `<div class="section-label earlier"><span class="pill">◄</span> Earlier Today <span class="line"></span></div>`;
+
+    html += renderCard(row, type, isCurrent);
+  });
+
+  cardsEl.innerHTML = html;
+}
+
+function renderCard(row, type, isCurrent) {
+  const reg    = cv(row, 'REG') || '—';
+  const arrFlt = cv(row, 'FLT_ARR');
+  const arr    = cv(row, 'ARR');
+  const sta    = cv(row, 'STA');
+  const eta    = cv(row, 'ETA');
+  const depFlt = cv(row, 'FLT_DEP');
+  const dep    = cv(row, 'DEP');
+  const std    = cv(row, 'STD');
+  const trd    = cv(row, 'TRD');
+  const bay    = cv(row, 'BAY');
+  const mech   = cv(row, 'MECH');
+  const lae1   = cv(row, 'LAE1');
+  const lae2   = cv(row, 'LAE2');
+  const etops  = cv(row, 'ETOPS');
+  const fgs    = cv(row, 'FGS');
+  const tow    = cv(row, 'TOW');
+  const remark = cv(row, 'REMARK');
+  const defect = cv(row, 'DEFECT');
+
+  const hasTow   = tow && tow.length > 0;
+  const towIsNow = tow.includes('ลาก');
+  const towDisplay = tow;
+
+  // Night stop: estimated work end = ETA (or STA) + 30 min
+  let nightEnd = '';
+  if (type === 'night') {
+    const base = timeToMins(eta) >= 0 ? eta : sta;
+    const m = timeToMins(base);
+    if (m >= 0) {
+      const e = (m + 30) % 1440;
+      nightEnd = String(Math.floor(e / 60)).padStart(2,'0') + ':' + String(e % 60).padStart(2,'0');
+    }
+  }
+
+  // Type tag
+  const typeTags = {
+    first:        { cls: 'tag-first',        text: 'FIRST FLIGHT' },
+    night:        { cls: 'tag-night',        text: 'NIGHT STOP' },
+    transit:      { cls: 'tag-transit',      text: 'TRANSIT' },
+    longtransit:  { cls: 'tag-longtransit',  text: 'LONG TRANSIT' },
+    other:        null
+  }[type];
+
+  const tags = [];
+  if (isCurrent) tags.push(`<span class="tag tag-now">● NOW</span>`);
+  if (typeTags)  tags.push(`<span class="tag ${typeTags.cls}">${typeTags.text}</span>`);
+
+  // People
+  const people = [];
+  if (mech) people.push(`<span class="person mech">${mech}</span>`);
+  if (lae1) people.push(`<span class="person lae"><span class="lae-tag">LAE</span>${lae1}</span>`);
+  if (lae2) people.push(`<span class="person lae"><span class="lae-tag">LAE</span>${lae2}</span>`);
+
+  // BAY bar
+  const bayBar = (bay || hasTow) ? `
+    <div class="bay-bar">
+      ${bay ? `<span class="bay-label">Bay</span><span class="bay-value">${bay}</span>` : ''}
+      ${hasTow ? `<span class="bay-tow${towIsNow ? ' tow-now' : ''}">${towDisplay}</span>` : ''}
+    </div>` : '';
+
+  // Arrival section
+  const arrivalSection = (type !== 'first' && type !== 'longtransit') ? `
+    <div class="section">
+      <div class="section-title arrival">
+        <span class="dir-arrow">↓</span> Arrival
+      </div>
+      <div class="section-row">
+        <div class="field"><span class="field-lbl">Flt</span><span class="field-val">${arrFlt || '—'}</span></div>
+        <div class="field"><span class="field-lbl">Arr</span><span class="field-val">${arr || '—'}</span></div>
+        <div class="field"><span class="field-lbl">Sta</span><span class="field-val">${sta || '—'}</span></div>
+        <div class="field"><span class="field-lbl">Eta</span><span class="field-val eta">${eta || '—'}</span></div>
+      </div>
+      ${nightEnd ? `<div class="section-row" style="margin-top:10px;">
+        <div class="field"><span class="field-lbl">Est. End</span><span class="field-val time">${nightEnd}</span></div>
+      </div>` : ''}
+    </div>` : `
+    <div class="section">
+      <div class="section-title dim">
+        <span class="dir-arrow">↓</span> Arrival
+      </div>
+      <div class="section-row">
+        <div class="field"><span class="field-val dim">${type === 'longtransit' ? 'Long Transit' : 'First flight of the day'}</span></div>
+      </div>
+    </div>`;
+
+  // Departure section
+  const departureSection = (type !== 'night') ? `
+    <div class="section">
+      <div class="section-title departure">
+        <span class="dir-arrow">↑</span> Departure
+      </div>
+      <div class="section-row">
+        <div class="field"><span class="field-lbl">Flt</span><span class="field-val">${depFlt || '—'}</span></div>
+        <div class="field"><span class="field-lbl">Dep</span><span class="field-val">${dep || '—'}</span></div>
+        <div class="field"><span class="field-lbl">Std</span><span class="field-val">${std || '—'}</span></div>
+      </div>
+      <div class="section-row" style="margin-top:10px;">
+        <div class="field"><span class="field-lbl">Trd</span><span class="field-val time">${trd || '—'}</span></div>
+      </div>
+    </div>` : `
+    <div class="section">
+      <div class="section-title dim">
+        <span class="dir-arrow">↑</span> Departure
+      </div>
+      <div class="section-row">
+        <div class="field"><span class="field-val dim">Night stop</span></div>
+      </div>
+      <div class="section-row" style="margin-top:10px;">
+        <div class="field"><span class="field-lbl">Trd</span><span class="field-val time">${trd || '—'}</span></div>
+      </div>
+    </div>`;
+
+  // Highlight chips
+  const highlights = [];
+  if (etops) highlights.push(`<span class="chip-etops">${etops}</span>`);
+  if (fgs)   highlights.push(`<span class="chip-fgs">${fgs}</span>`);
+  const highlightBar = highlights.length ? `<div class="highlights">${highlights.join('')}</div>` : '';
+
+  // TOW bar
+  const towBar = '';
+
+  return `
+    <div class="card type-${type} ${isCurrent ? 'is-current' : ''}">
+      <div class="card-header">
+        <div class="reg-block">
+          <div class="reg-line">
+            <span class="reg reg-link" onclick="openDefectDrawer('${reg}')">${reg}</span>
+          </div>
+          <div class="type-tags">${tags.join('')}</div>
+        </div>
+        <div class="team-stack">${people.join('')}</div>
+      </div>
+      ${bayBar}
+      ${arrivalSection}
+      ${departureSection}
+      ${highlightBar}
+      ${towBar}
+      ${remark ? `<div class="remark"><span class="remark-icon">NOTE</span><span>${remark}</span></div>` : ''}
+      ${defect ? `<div class="defect"><span class="defect-icon">DFCT</span><span>${defect}</span></div>` : ''}
+    </div>`;
+}
+
+// ── Tab switching ──
+function switchTab(tab) {
+  document.getElementById('tab-day').style.display  = tab === 'day'  ? '' : 'none';
+  document.getElementById('tab-fuel').style.display = tab === 'fuel' ? '' : 'none';
+  document.getElementById('tab-btn-day').classList.toggle('active',  tab === 'day');
+  document.getElementById('tab-btn-fuel').classList.toggle('active', tab === 'fuel');
+  localStorage.setItem('taa_active_tab', tab);
+  if (tab === 'fuel') renderFuelNowCard();
+}
+
+function renderFuelNowCard() {
+  const wrap = document.getElementById('fuelNowWrap');
+  if (!wrap) return;
+  const name = (document.getElementById('nameInput').value || '').trim().toUpperCase();
+
+  if (!name || !allRows.length) {
+    wrap.innerHTML = `<div class="fuel-now-empty">ENTER NAME ON DAY TAB TO SEE NOW FLIGHT</div>`;
+    return;
+  }
+
+  const nowMins = new Date().getHours() * 60 + new Date().getMinutes();
+  const matches = allRows.filter(row =>
+    ['REG','MECH','LAE1','LAE2'].some(k => cv(row, k).toUpperCase().includes(name))
+  );
+  const upcoming = matches.filter(row => {
+    const t = getUpcomingTime(row);
+    return t < 0 || t >= nowMins;
+  });
+
+  const row = upcoming[0] || matches[0];
+  if (!row) {
+    wrap.innerHTML = `<div class="fuel-now-empty">NO FLIGHT FOUND FOR ${name}</div>`;
+    return;
+  }
+
+  const reg    = cv(row, 'REG')     || '—';
+  const bay    = cv(row, 'BAY')     || '—';
+  const fltDep = cv(row, 'FLT_DEP') || cv(row, 'FLT_ARR') || '—';
+  const std    = cv(row, 'STD')     || cv(row, 'STA')      || '—';
+  const trd    = cv(row, 'TRD');
+
+  wrap.innerHTML = `
+    <div class="fuel-now-card">
+      <div class="fuel-now-dot"></div>
+      <div class="fuel-now-reg">${reg}</div>
+      <div class="fuel-now-meta">
+        <div class="fuel-now-row">BAY <span class="hl">${bay}</span> · FLT <span class="hl">${fltDep}</span></div>
+        <div class="fuel-now-row">STD <span class="hl-cyan">${std}</span>${trd ? ` · TRD <span class="hl">${trd}</span>` : ''}</div>
+      </div>
+    </div>`;
+}
+
+// ── Fuel calculator ──
+const FUEL_INPUT_IDS = ['fArrL','fArrC','fArrR','fDepL','fDepC','fDepR','fLts','fSG','fPlan'];
+
+function fv(id) { return parseFloat(document.getElementById(id).value) || 0; }
+
+function setText(id, v) { const el = document.getElementById(id); if (el) el.textContent = v; }
+
+function calcFuel() {
+  const arrL = fv('fArrL'), arrC = fv('fArrC'), arrR = fv('fArrR');
+  const depL = fv('fDepL'), depC = fv('fDepC'), depR = fv('fDepR');
+  const lts  = fv('fLts');
+  const sg   = fv('fSG') || 0.777;
+  const plan = fv('fPlan');
+
+  const arrTotal  = arrL + arrC + arrR;
+  const depTotal  = depL + depC + depR;
+  const refuelKg  = lts > 0 ? Math.round(lts * sg) : 0;
+  const calcTotal = arrTotal + refuelKg;
+  const upliftLts = plan > 0 ? Math.round((plan - arrTotal) / sg) : 0;
+  const timeMins  = upliftLts > 0 ? upliftLts / 700 : 0;
+  const mm        = Math.floor(timeMins);
+  const ss        = Math.round((timeMins - mm) * 60);
+  const timeStr   = upliftLts > 0 ? `${String(mm).padStart(2,'0')}:${String(ss).padStart(2,'0')}` : '—';
+  const kgPerMin  = Math.round(700 * sg * 10) / 10;
+
+  const hasArr = arrL || arrC || arrR;
+  const hasDep = depL || depC || depR;
+
+  setText('fArrTotal',   hasArr ? arrTotal  : '—');
+  setText('fDepTotal',   hasDep ? depTotal  : '—');
+  setText('fRefuelKg',   lts > 0 ? refuelKg : '—');
+  setText('fUpliftLts',  upliftLts > 0 ? upliftLts : '—');
+  setText('fTime',       timeStr);
+  setText('sArrival',    hasArr ? arrTotal  : '—');
+  setText('sRefuel',     lts > 0 ? refuelKg : '—');
+  setText('sCalc',       (hasArr || lts > 0) ? calcTotal : '—');
+  setText('sDepart',     hasDep ? depTotal  : '—');
+  setText('sUpliftLts2', upliftLts > 0 ? upliftLts : '—');
+  setText('sKgPerMin',   kgPerMin);
+
+  const diff    = calcTotal - depTotal;
+  const hasDiff = (hasArr || lts > 0) && hasDep;
+  const diffEl  = document.getElementById('sDiff');
+  if (diffEl) {
+    diffEl.textContent = hasDiff ? diff : '—';
+    diffEl.className   = 'sum-val' + (!hasDiff ? '' :
+      Math.abs(diff) < 100 ? ' diff-ok' :
+      Math.abs(diff) < 300 ? ' diff-warn' : ' diff-danger');
+  }
+
+  FUEL_INPUT_IDS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) localStorage.setItem('taa_fuel_' + k, el.value);
+  });
+}
+
+function resetFuel() {
+  FUEL_INPUT_IDS.forEach(k => {
+    const el = document.getElementById(k);
+    if (el) { el.value = ''; localStorage.removeItem('taa_fuel_' + k); }
+  });
+  calcFuel();
+}
+
+function restoreFuel() {
+  FUEL_INPUT_IDS.forEach(k => {
+    const saved = localStorage.getItem('taa_fuel_' + k);
+    const el = document.getElementById(k);
+    if (saved !== null && el) el.value = saved;
+  });
+  calcFuel();
+}
+
+// ── A320 Defect Drawer ──
+let a320Rows = null, a320ColIdx = {}, a320Headers = [];
+
+function loadA320(callback) {
+  if (a320Rows !== null) { callback(); return; }
+  ensureToken(async () => {
+    try {
+      const rows = await fetchSheetValues('A320');
+      parseA320FromRows(rows);
+    } catch { a320Rows = null; }
+    callback();
+  });
+}
+
+function parseA320FromRows(rows) {
+  let headerRow = -1, rawHeaders = [];
+  for (let i = 0; i < Math.min(20, rows.length); i++) {
+    const norm = rows[i].map(normalizeHeader);
+    if (norm.some(c => c === 'A C' || c === 'AC') && norm.some(c => c === 'DATE')) {
+      headerRow  = i;
+      rawHeaders = rows[i].map(v => (v || '').trim());
+      break;
+    }
+  }
+
+  if (headerRow < 0) { a320Rows = null; return; }
+
+  a320Headers = rawHeaders;
+  a320ColIdx  = {};
+  rawHeaders.forEach((h, i) => {
+    const norm = normalizeHeader(h);
+    if (a320ColIdx[norm]     === undefined) a320ColIdx[norm]     = i;
+    if (a320ColIdx[h.trim()] === undefined) a320ColIdx[h.trim()] = i;
+  });
+
+  const acIdx = a320ColIdx['A/C'] ?? a320ColIdx['A C'];
+  a320Rows = rows.slice(headerRow + 1)
+    .map(cols => cols.map(v => (v || '').trim()))
+    .filter(cols => (cols[acIdx] || '').trim().length > 0);
+}
+
+function openDefectDrawer(reg) {
+  document.getElementById('drawerTitle').textContent = `${reg} — DEFECTS`;
+  document.getElementById('drawerCount').textContent = '';
+  document.getElementById('drawerContent').innerHTML = '<div class="drawer-loading">Loading…</div>';
+  document.getElementById('drawerBackdrop').classList.add('active');
+  document.getElementById('defectDrawer').classList.add('active');
+  const scrollY = window.scrollY;
+  document.body.dataset.scrollY = scrollY;
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+  loadA320(() => renderDefects(reg));
+}
+
+function closeDefectDrawer() {
+  document.getElementById('drawerBackdrop').classList.remove('active');
+  document.getElementById('defectDrawer').classList.remove('active');
+  const scrollY = parseInt(document.body.dataset.scrollY || '0');
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
+  window.scrollTo(0, scrollY);
+}
+
+function renderDefects(reg) {
+  const content = document.getElementById('drawerContent');
+  const acIdx   = a320ColIdx['A/C'] ?? a320ColIdx['A C'];
+
+  if (acIdx === undefined || !a320Rows.length) {
+    content.innerHTML = `<div class="drawer-empty">No data available</div>`;
+    return;
+  }
+
+  const regUpper  = reg.toUpperCase();
+  const regWithHS = regUpper.startsWith('HS-') ? regUpper : 'HS-' + regUpper;
+  const rows = a320Rows.filter(row => {
+    const ac = (row[acIdx] || '').trim().toUpperCase();
+    return ac === regWithHS || ac === regUpper;
+  });
+
+  document.getElementById('drawerCount').textContent = rows.length ? `· ${rows.length}` : '';
+
+  if (!rows.length) {
+    content.innerHTML = `<div class="drawer-empty">No defects on record<br>for ${reg}</div>`;
+    return;
+  }
+
+  const melIdx  = a320ColIdx['MEL'];
+  const catIdx  = a320ColIdx['CAT'];
+  const expIdx  = a320ColIdx[normalizeHeader('Exp Date')];
+  const dateIdx = a320ColIdx['DATE'];
+  const compIdx = Object.entries(a320ColIdx).find(([k]) => k.includes('COMPONENT'))?.[1];
+  const MEL_CATS   = new Set(['A','B','C','D']);
+  const previewSet = new Set([acIdx, melIdx, catIdx, expIdx, dateIdx, compIdx].filter(i => i !== undefined));
+
+  const MON_MAP = {
+    'ม.ค.':0,'ก.พ.':1,'มี.ค.':2,'เม.ย.':3,'พ.ค.':4,'มิ.ย.':5,'ก.ค.':6,'ส.ค.':7,'ก.ย.':8,'ต.ค.':9,'พ.ย.':10,'ธ.ค.':11,
+    'Jan':0,'Feb':1,'Mar':2,'Apr':3,'May':4,'Jun':5,'Jul':6,'Aug':7,'Sep':8,'Oct':9,'Nov':10,'Dec':11
+  };
+  const parseDateVal = s => { const p = (s||'').trim().split(/\s+/); const m = MON_MAP[p[1]]; return m !== undefined ? (+(p[2]||0))*10000 + m*100 + (+(p[0]||0)) : 0; };
+  if (dateIdx !== undefined) rows.sort((a, b) => parseDateVal(b[dateIdx]) - parseDateVal(a[dateIdx]));
+
+  let html = '';
+  rows.forEach(row => {
+    const cat   = catIdx !== undefined ? (row[catIdx] || '').trim().toUpperCase() : '';
+    const isMel = MEL_CATS.has(cat);
+    const isNtc = cat === 'NTC ONLY' || cat === 'NTC';
+
+    const melVal  = melIdx  !== undefined ? (row[melIdx]  || '').trim() : '';
+    const catVal  = catIdx  !== undefined ? (row[catIdx]  || '').trim() : '';
+    const expVal  = expIdx  !== undefined ? (row[expIdx]  || '').trim() : '';
+    const dateVal = dateIdx !== undefined ? (row[dateIdx] || '').trim() : '';
+    const compVal = compIdx !== undefined ? (row[compIdx] || '').trim() : '';
+    const compHdr = compIdx !== undefined ? a320Headers[compIdx] : 'Component';
+
+    const melSection = isMel ? `
+      <div class="defect-preview-mel">
+        ${melVal  ? `<div class="defect-field mel-hl"><span class="defect-lbl">MEL</span><span class="defect-val">${melVal}</span></div>` : ''}
+        ${catVal  ? `<div class="defect-field mel-hl"><span class="defect-lbl">CAT</span><span class="defect-val">${catVal}</span></div>` : ''}
+        ${expVal  ? `<div class="defect-field mel-hl"><span class="defect-lbl">Exp Date</span><span class="defect-val">${expVal}</span></div>` : ''}
+      </div>` : isNtc ? `
+      <div class="defect-preview-mel" style="border-bottom-color:rgba(251,191,36,0.2);">
+        <div class="defect-field ntc-hl"><span class="defect-lbl">CAT</span><span class="defect-val">${catVal}</span></div>
+      </div>` : '';
+
+    let extraHtml = '';
+    a320Headers.forEach((header, i) => {
+      if (!header.trim() || previewSet.has(i)) return;
+      const val = (row[i] || '').trim();
+      if (!val) return;
+      extraHtml += `<div class="defect-field${val.length > 20 ? ' full-width' : ''}">
+        <span class="defect-lbl">${header}</span>
+        <span class="defect-val">${val}</span>
+      </div>`;
+    });
+
+    html += `
+      <div class="defect-row${isMel ? ' mel-active' : ''}" onclick="this.classList.toggle('expanded')">
+        <div class="defect-preview">
+          ${melSection}
+          ${compVal ? `<div class="defect-field full-width"><span class="defect-lbl">${compHdr}</span><span class="defect-val">${compVal}</span></div>` : ''}
+          ${dateVal ? `<div class="defect-field"><span class="defect-lbl">Date</span><span class="defect-val">${dateVal}</span></div>` : ''}
+        </div>
+        ${extraHtml ? `<div class="defect-extra">${extraHtml}</div><div class="defect-hint"></div>` : ''}
+      </div>`;
+  });
+
+  content.innerHTML = html;
+}
+
+// ── Auth ──
+function decodeJWT(token) {
+  try { return JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); }
+  catch { return null; }
+}
+
+function checkSession() {
+  try {
+    const auth = JSON.parse(localStorage.getItem('taa_auth') || 'null');
+    if (auth && auth.expiry > Date.now()) { applySession(auth); return true; }
+  } catch {}
+  localStorage.removeItem('taa_auth');
+  return false;
+}
+
+function applySession(auth) {
+  document.getElementById('loginOverlay').classList.add('hidden');
+  const info = document.getElementById('userInfo');
+  if (info) info.style.display = 'flex';
+  const av = document.getElementById('userAvatar');
+  if (av && auth.picture) av.src = auth.picture;
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('loginError');
+  if (el) { el.textContent = msg; el.classList.add('show'); }
+}
+
+function logout() {
+  localStorage.removeItem('taa_auth');
+  accessToken = null;
+  try { google.accounts.id.disableAutoSelect(); } catch {}
+  location.reload();
+}
+
+function handleCredentialResponse(response) {
+  const payload = decodeJWT(response.credential);
+  if (!payload) { showLoginError('Authentication failed.'); return; }
+  if (!ALLOWED.includes((payload.email || '').toLowerCase())) {
+    showLoginError(`Access denied:\n${payload.email}`);
+    google.accounts.id.disableAutoSelect();
+    return;
+  }
+  const auth = { email: payload.email, name: payload.name, picture: payload.picture, expiry: Date.now() + SESSION_MS };
+  localStorage.setItem('taa_auth', JSON.stringify(auth));
+  applySession(auth);
+  ensureToken(loadData);
+}
+
+function handleTokenResponse(resp) {
+  if (resp.error) return;
+  accessToken = resp.access_token;
+  if (pendingAfterToken) { const fn = pendingAfterToken; pendingAfterToken = null; fn(); }
+}
+
+function ensureToken(callback) {
+  if (accessToken) { callback(); return; }
+  pendingAfterToken = callback;
+  tokenClient.requestAccessToken({ prompt: '' });
+}
+
+function initAuth() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID, scope: SCOPES, callback: handleTokenResponse,
+  });
+  if (checkSession()) { ensureToken(loadData); return; }
+  google.accounts.id.initialize({ client_id: CLIENT_ID, callback: handleCredentialResponse, auto_select: false });
+  google.accounts.id.renderButton(
+    document.getElementById('googleSignInBtn'),
+    { theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'rectangular', width: 260 }
+  );
+}
+
+function setStatus(msg, state) {
+  document.getElementById('status').textContent = msg;
+  const dot = document.getElementById('dot');
+  dot.className = 'dot' + (state === 'loading' ? ' loading' : state === 'error' ? ' error' : '');
+}
+</script>
+
+<div id="drawerBackdrop" onclick="closeDefectDrawer()" ontouchend="event.preventDefault();closeDefectDrawer()"></div>
+<div id="defectDrawer" ontouchstart="event.stopPropagation()" ontouchmove="event.stopPropagation()" ontouchend="event.stopPropagation()">
+  <div class="drawer-handle"></div>
+  <div class="drawer-header">
+    <div>
+      <span class="drawer-title" id="drawerTitle">DEFECTS</span>
+      <span class="drawer-count" id="drawerCount"></span>
+    </div>
+    <button class="drawer-close" onclick="closeDefectDrawer()">✕</button>
+  </div>
+  <div id="drawerContent" class="drawer-content"></div>
+</div>
+</body>
+</html>
