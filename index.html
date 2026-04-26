@@ -89,7 +89,7 @@
   .header {
     background: linear-gradient(to bottom, var(--surface), var(--surface) 90%, transparent);
     border-bottom: 1px solid var(--border);
-    padding: 18px 20px 16px;
+    padding: 5px 15px 5px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -144,10 +144,17 @@
 
   .header-meta {
     display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .header-time {
+    display: flex;
     flex-direction: column;
     align-items: flex-end;
     gap: 3px;
-    font-family: 'JetBrains Mono', monospace;
   }
 
   .clock {
@@ -159,15 +166,15 @@
   }
 
   .date-line {
-    font-size: 9px;
-    letter-spacing: 0.2em;
+    font-size: 12px;
+    letter-spacing: 0em;
     color: var(--ink-mute);
     text-transform: uppercase;
   }
 
   /* ────────── SEARCH ────────── */
   .search-wrap {
-    padding: 18px 20px;
+    padding: 5px 20px;
     position: relative;
     z-index: 2;
   }
@@ -250,7 +257,7 @@
 
   /* ────────── STATUS ────────── */
   .status-bar {
-    padding: 10px 20px 12px;
+    padding: 2px 20px 5px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 10px;
     font-weight: 500;
@@ -420,19 +427,22 @@
 
   /* ────────── CARD HEADER ────────── */
   .card-header {
-    padding: 16px 16px 12px;
+    padding: 16px 16px 8px;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    gap: 12px;
+    align-items: center;
+    gap: 10px;
     position: relative;
   }
 
   .reg-block {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    flex-shrink: 0;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    flex: 1;
+    min-width: 0;
   }
 
   .reg-line {
@@ -543,8 +553,8 @@
 
   /* ────────── BAY BAR ────────── */
   .bay-bar {
-    margin: 0 16px 14px;
-    padding: 10px 14px;
+    margin: 0 16px 8px;
+    padding: 3px 14px;
     background: linear-gradient(90deg, var(--success-dim), transparent);
     border-left: 3px solid var(--success);
     border-radius: 6px;
@@ -584,7 +594,7 @@
 
   /* ────────── SECTIONS ────────── */
   .section {
-    padding: 14px 16px;
+    padding: 8px 16px;
     border-top: 1px solid var(--border);
   }
 
@@ -594,7 +604,7 @@
     font-weight: 700;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -620,7 +630,7 @@
   .section-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 14px 18px;
+    gap: 8px 14px;
     align-items: flex-end;
   }
 
@@ -655,10 +665,10 @@
 
   /* ────────── HIGHLIGHTS ────────── */
   .highlights {
-    padding: 12px 16px;
+    padding: 6px 16px;
     border-top: 1px solid var(--border);
     display: flex;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
   }
 
@@ -669,7 +679,7 @@
     background: rgba(34, 211, 238, 0.1);
     border: 1px solid var(--cyan);
     color: var(--cyan);
-    padding: 6px 11px;
+    padding: 3px 8px;
     border-radius: 6px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
@@ -684,7 +694,7 @@
     background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(251, 191, 36, 0.15));
     border: 1px solid var(--warn);
     color: var(--warn);
-    padding: 6px 12px;
+    padding: 3px 8px;
     border-radius: 6px;
     font-family: 'JetBrains Mono', monospace;
     font-size: 12px;
@@ -743,7 +753,7 @@
 
   /* ────────── REMARK / DEFECT ────────── */
   .remark, .defect {
-    padding: 12px 16px;
+    padding: 7px 16px;
     border-top: 1px solid var(--border);
     font-size: 13px;
     font-weight: 500;
@@ -1302,7 +1312,7 @@
   .login-error { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--danger); letter-spacing: 0.06em; text-align: center; line-height: 1.6; display: none; }
   .login-error.show { display: block; }
   /* ── User info in header ── */
-  .user-info { display: none; align-items: center; gap: 8px; }
+  .user-info { display: none; flex-direction: column; align-items: center; gap: 4px; }
   .user-avatar { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--amber); object-fit: cover; flex-shrink: 0; }
   .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--ink-mute); font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; letter-spacing: 0.15em; padding: 4px 8px; border-radius: 5px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   .logout-btn:active { color: var(--danger); border-color: var(--danger); }
@@ -1336,11 +1346,13 @@
     </div>
   </div>
   <div class="header-meta">
-    <div class="clock" id="clock">--:--</div>
-    <div class="date-line" id="date">--- --- --</div>
+    <div class="header-time">
+      <div class="clock" id="clock">--:--</div>
+      <div class="date-line" id="date">--- --- --</div>
+    </div>
     <div class="user-info" id="userInfo">
       <img class="user-avatar" id="userAvatar" src="" alt="">
-      <button class="logout-btn" onclick="logout()">OUT</button>
+      <button class="logout-btn" onclick="logout()">LOGOUT</button>
     </div>
   </div>
 </header>
@@ -1791,7 +1803,7 @@ function renderCard(row, type, isCurrent) {
         <div class="field"><span class="field-lbl">Sta</span><span class="field-val">${sta || '—'}</span></div>
         <div class="field"><span class="field-lbl">Eta</span><span class="field-val eta">${eta || '—'}</span></div>
       </div>
-      ${nightEnd ? `<div class="section-row" style="margin-top:10px;">
+      ${nightEnd ? `<div class="section-row" style="margin-top:6px;">
         <div class="field"><span class="field-lbl">Est. End</span><span class="field-val time">${nightEnd}</span></div>
       </div>` : ''}
     </div>` : `
@@ -1815,7 +1827,7 @@ function renderCard(row, type, isCurrent) {
         <div class="field"><span class="field-lbl">Dep</span><span class="field-val">${dep || '—'}</span></div>
         <div class="field"><span class="field-lbl">Std</span><span class="field-val">${std || '—'}</span></div>
       </div>
-      <div class="section-row" style="margin-top:10px;">
+      <div class="section-row" style="margin-top:6px;">
         <div class="field"><span class="field-lbl">Trd</span><span class="field-val time">${trd || '—'}</span></div>
       </div>
     </div>` : `
@@ -1826,7 +1838,7 @@ function renderCard(row, type, isCurrent) {
       <div class="section-row">
         <div class="field"><span class="field-val dim">Night stop</span></div>
       </div>
-      <div class="section-row" style="margin-top:10px;">
+      <div class="section-row" style="margin-top:6px;">
         <div class="field"><span class="field-lbl">Trd</span><span class="field-val time">${trd || '—'}</span></div>
       </div>
     </div>`;
