@@ -1396,6 +1396,30 @@
     <div id="fuelNowWrap"></div>
 
     <div class="fuel-section">
+      <div class="fuel-section-title">Summary</div>
+      <div class="fuel-summary">
+        <div class="sum-row">
+          <span class="sum-lbl">Arrival</span><span id="sArrival" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra">700 Lts/min</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Refuel</span><span id="sRefuel" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra">Uplift <span id="sUpliftLts2">—</span> Lts</span>
+        </div>
+        <div class="sum-row sum-calc">
+          <span class="sum-lbl">CALC</span><span id="sCalc" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra"><span id="sKgPerMin">—</span> Kg/min</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Depart</span><span id="sDepart" class="sum-val">—</span><span class="sum-unit">KG</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Diff</span><span id="sDiff" class="sum-val">—</span><span class="sum-unit">KG</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="fuel-section">
       <div class="fuel-section-title">Tank Readings (KG)</div>
       <table class="fuel-table">
         <thead><tr><th></th><th>LEFT</th><th>CTR</th><th>RIGHT</th><th>TOTAL</th></tr></thead>
@@ -1444,30 +1468,6 @@
           </tr>
         </tbody>
       </table>
-    </div>
-
-    <div class="fuel-section">
-      <div class="fuel-section-title">Summary</div>
-      <div class="fuel-summary">
-        <div class="sum-row">
-          <span class="sum-lbl">Arrival</span><span id="sArrival" class="sum-val">—</span><span class="sum-unit">KG</span>
-          <span class="sum-extra">700 Lts/min</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-lbl">Refuel</span><span id="sRefuel" class="sum-val">—</span><span class="sum-unit">KG</span>
-          <span class="sum-extra">Uplift <span id="sUpliftLts2">—</span> Lts</span>
-        </div>
-        <div class="sum-row sum-calc">
-          <span class="sum-lbl">CALC</span><span id="sCalc" class="sum-val">—</span><span class="sum-unit">KG</span>
-          <span class="sum-extra"><span id="sKgPerMin">—</span> Kg/min</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-lbl">Depart</span><span id="sDepart" class="sum-val">—</span><span class="sum-unit">KG</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-lbl">Diff</span><span id="sDiff" class="sum-val">—</span><span class="sum-unit">KG</span>
-        </div>
-      </div>
     </div>
 
     <div class="fuel-actions">
@@ -1983,6 +1983,7 @@ function calcFuel() {
 
 function resetFuel() {
   FUEL_INPUT_IDS.forEach(k => {
+    if (k === 'fSG') return;
     const el = document.getElementById(k);
     if (el) { el.value = ''; localStorage.removeItem('taa_fuel_' + k); }
   });
