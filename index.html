@@ -1983,6 +1983,7 @@ function calcFuel() {
 
 function resetFuel() {
   FUEL_INPUT_IDS.forEach(k => {
+    if (k === 'fSG') return;
     const el = document.getElementById(k);
     if (el) { el.value = ''; localStorage.removeItem('taa_fuel_' + k); }
   });
