@@ -1396,30 +1396,6 @@
     <div id="fuelNowWrap"></div>
 
     <div class="fuel-section">
-      <div class="fuel-section-title">Summary</div>
-      <div class="fuel-summary">
-        <div class="sum-row">
-          <span class="sum-lbl">Arrival</span><span id="sArrival" class="sum-val">—</span><span class="sum-unit">KG</span>
-          <span class="sum-extra">700 Lts/min</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-lbl">Refuel</span><span id="sRefuel" class="sum-val">—</span><span class="sum-unit">KG</span>
-          <span class="sum-extra">Uplift <span id="sUpliftLts2">—</span> Lts</span>
-        </div>
-        <div class="sum-row sum-calc">
-          <span class="sum-lbl">CALC</span><span id="sCalc" class="sum-val">—</span><span class="sum-unit">KG</span>
-          <span class="sum-extra"><span id="sKgPerMin">—</span> Kg/min</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-lbl">Depart</span><span id="sDepart" class="sum-val">—</span><span class="sum-unit">KG</span>
-        </div>
-        <div class="sum-row">
-          <span class="sum-lbl">Diff</span><span id="sDiff" class="sum-val">—</span><span class="sum-unit">KG</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="fuel-section">
       <div class="fuel-section-title">Tank Readings (KG)</div>
       <table class="fuel-table">
         <thead><tr><th></th><th>LEFT</th><th>CTR</th><th>RIGHT</th><th>TOTAL</th></tr></thead>
@@ -1470,8 +1446,32 @@
       </table>
     </div>
 
+    <div class="fuel-section">
+      <div class="fuel-section-title">Summary</div>
+      <div class="fuel-summary">
+        <div class="sum-row">
+          <span class="sum-lbl">Arrival</span><span id="sArrival" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra">700 Lts/min</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Refuel</span><span id="sRefuel" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra">Uplift <span id="sUpliftLts2">—</span> Lts</span>
+        </div>
+        <div class="sum-row sum-calc">
+          <span class="sum-lbl">CALC</span><span id="sCalc" class="sum-val">—</span><span class="sum-unit">KG</span>
+          <span class="sum-extra"><span id="sKgPerMin">—</span> Kg/min</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Depart</span><span id="sDepart" class="sum-val">—</span><span class="sum-unit">KG</span>
+        </div>
+        <div class="sum-row">
+          <span class="sum-lbl">Diff</span><span id="sDiff" class="sum-val">—</span><span class="sum-unit">KG</span>
+        </div>
+      </div>
+    </div>
+
     <div class="fuel-actions">
-      <button class="btn fuel-btn-taaplus" onclick="window.location.href='https://taaplus.com/'">TAAPLUS ↗</button>
+      <button class="btn fuel-btn-taaplus" onclick="window.open('https://taaplus.com/', '_blank', 'noopener')">TAAPLUS ↗</button>
       <button class="btn fuel-btn-reset" onclick="resetFuel()">RESET</button>
     </div>
 
@@ -1481,7 +1481,7 @@
 <script>
 const SHEET_ID   = '1N21gf1NVkwVxBVtUs_PpDLu1P12oV8Jt4V_NVNSF6CY';
 const CLIENT_ID  = '255790294756-knguo4k0cv33ol322os7cq3aulm62rre.apps.googleusercontent.com';
-const ALLOWED    = ['saranyuparneja@airasia.com', 'saranyu.parneja@gmail.com', 'pitchas@airasia.com'];
+const ALLOWED    = ['saranyuparneja@airasia.com', 'saranyu.parneja@gmail.com'];
 const SESSION_MS = 2 * 24 * 60 * 60 * 1000;
 const SCOPES     = 'https://www.googleapis.com/auth/spreadsheets.readonly';
 
@@ -1983,7 +1983,6 @@ function calcFuel() {
 
 function resetFuel() {
   FUEL_INPUT_IDS.forEach(k => {
-    if (k === 'fSG') return;
     const el = document.getElementById(k);
     if (el) { el.value = ''; localStorage.removeItem('taa_fuel_' + k); }
   });
